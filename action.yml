@@ -4,23 +4,21 @@ branding:
   icon: git-commit
   color: yellow
 inputs:
-  base:
-    description: Base commit (to). Defaults to base ref
-    required: false
-    default: ${{ github.context.ref }}
   head:
-    description: Head commit (from)
+    description: Head commit (to). Defaults to ref
+    default: ${{ github.ref }}
+    required: false
+  base:
+    description: Base commit (from)
     required: true
   token:
     description: GitHub token
     required: false
     default: ${{ github.token }}
-  owner:
-    description: Owner of the repository
+  repository:
+    description: Repository to compare commits in. Defaults to current repository
     required: false
-  repo:
-    description: Name of the repository
-    required: false
+    default: ${{ github.repository }}
 outputs:
   changelog:
     description: Changelog
@@ -41,17 +39,15 @@ runs:
           const head = returnAfterDash('${{ inputs.head }}');
           const base = returnAfterDash('${{ inputs.base }}');
 
-          const owner = '${{ inputs.owner }}' !== '' ? '${{ inputs.owner }}' : context.repo.owner;
-          const repo = '${{ inputs.repo }}' !== '' ? '${{ inputs.repo }}' : context.repo.repo;
+          const fullRepoName = '${{ inputs.repository }}';
+          const [owner, repo] = fullRepoName.split('/');
 
-          const compare = await github.repos.compareCommits({
+          const compare = await github.rest.repos.compareCommits({
             owner,
             repo,
             base,
             head,
           });
-
-          const fullRepoName = `${owner}/${repo}`;
 
           const parseCommit = (message) => message.split('\n')[0].replace('#', `${fullRepoName}#`);
           const changelog = compare.data.commits.map(commit => `* ${parseCommit(commit.commit.message)} ([commit](${commit.html_url}))`).join('\n');
