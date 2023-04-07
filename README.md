@@ -14,7 +14,16 @@ This action returns a list of commits between two commits as an output. This is 
 ## Quickstart
 
 ```yaml
-- uses: cobraz/get-commit-changelog
+- uses: cobraz/get-commit-changelog@v1
+  id: changelog
+  with:
+    base: ${{ steps.something.base }}
+```
+
+## Example
+
+```yaml
+- uses: cobraz/get-commit-changelog@v1
   id: changelog
   with:
     base: ${{ steps.something.base }}
