@@ -1,8 +1,8 @@
 name: get-commit-changelog
 description: List commits between two commits as output
 branding:
-  icon: lock
-  color: green
+  icon: git-commit
+  color: yellow
 inputs:
   base:
     description: Base commit
