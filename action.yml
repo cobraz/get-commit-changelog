@@ -5,14 +5,16 @@ branding:
   color: yellow
 inputs:
   base:
-    description: Base commit
-    required: true
+    description: Base commit (to). Defaults to base ref
+    required: false
+    default: ${{ github.context.ref }}
   head:
-    description: Head commit
+    description: Head commit (from)
     required: true
   token:
-    description: A Personal Access Token (PAT) with repo scope
-    required: true
+    description: GitHub token
+    required: false
+    default: ${{ github.token }}
   owner:
     description: Owner of the repository
     required: false
@@ -34,9 +36,10 @@ runs:
         github-token: ${{ inputs.token }}
         result-encoding: string
         script: |
+          const returnAfterDash = (str) => str.split('-').pop();
 
-          const [,head] = '${{ inputs.head }}'.split('-');
-          const [,base] = '${{ inputs.base }}'.split('-');
+          const head = returnAfterDash('${{ inputs.head }}');
+          const base = returnAfterDash('${{ inputs.base }}');
 
           const owner = '${{ inputs.owner }}' !== '' ? '${{ inputs.owner }}' : context.repo.owner;
           const repo = '${{ inputs.repo }}' !== '' ? '${{ inputs.repo }}' : context.repo.repo;
