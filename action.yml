@@ -1,0 +1,56 @@
+name: get-commit-changelog
+description: List commits between two commits as output
+branding:
+  icon: lock
+  color: green
+inputs:
+  base:
+    description: Base commit
+    required: true
+  head:
+    description: Head commit
+    required: true
+  token:
+    description: A Personal Access Token (PAT) with repo scope
+    required: true
+  owner:
+    description: Owner of the repository
+    required: false
+  repo:
+    description: Name of the repository
+    required: false
+outputs:
+  changelog:
+    description: Changelog
+    value: ${{ steps.changelog.outputs.result }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get commits
+      uses: actions/github-script@v6
+      id: changelog
+      with:
+        github-token: ${{ inputs.token }}
+        result-encoding: string
+        script: |
+
+          const [,head] = '${{ inputs.head }}'.split('-');
+          const [,base] = '${{ inputs.base }}'.split('-');
+
+          const owner = '${{ inputs.owner }}' !== '' ? '${{ inputs.owner }}' : context.repo.owner;
+          const repo = '${{ inputs.repo }}' !== '' ? '${{ inputs.repo }}' : context.repo.repo;
+
+          const compare = await github.repos.compareCommits({
+            owner,
+            repo,
+            base,
+            head,
+          });
+
+          const fullRepoName = `${owner}/${repo}`;
+
+          const parseCommit = (message) => message.split('\n')[0].replace('#', `${fullRepoName}#`);
+          const changelog = compare.data.commits.map(commit => `* ${parseCommit(commit.commit.message)} ([commit](${commit.html_url}))`).join('\n');
+
+          return changelog;
