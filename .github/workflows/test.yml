@@ -16,3 +16,14 @@ jobs:
           base: bcd6c5c83303667d07f8f0eefabffb6260b0e24f
       - name: Print changelog
         run: echo "${{ steps.changelog.outputs.changelog }}"
+  test-action-with-empty-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        id: changelog
+        with:
+          base: ''
+          head: ''
+      - name: Print changelog
+        run: echo "${{ steps.changelog.outputs.changelog }}"
