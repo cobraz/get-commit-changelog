@@ -34,22 +34,26 @@ runs:
         github-token: ${{ inputs.token }}
         result-encoding: string
         script: |
-          const returnAfterDash = (str) => str.split('-').pop();
+          try {
+            const returnAfterDash = (str) => str.split('-').pop();
 
-          const head = returnAfterDash('${{ inputs.head }}');
-          const base = returnAfterDash('${{ inputs.base }}');
+            const head = returnAfterDash('${{ inputs.head }}');
+            const base = returnAfterDash('${{ inputs.base }}');
 
-          const fullRepoName = '${{ inputs.repository }}';
-          const [owner, repo] = fullRepoName.split('/');
+            const fullRepoName = '${{ inputs.repository }}';
+            const [owner, repo] = fullRepoName.split('/');
 
-          const compare = await github.rest.repos.compareCommits({
-            owner,
-            repo,
-            base,
-            head,
-          });
+            const compare = await github.rest.repos.compareCommits({
+              owner,
+              repo,
+              base,
+              head,
+            });
 
-          const parseCommit = (message) => message.split('\n')[0].replace('#', `${fullRepoName}#`);
-          const changelog = compare.data.commits.map(commit => `* ${parseCommit(commit.commit.message)} ([commit](${commit.html_url}))`).join('\n');
+            const parseCommit = (message) => message.split('\n')[0].replace('#', `${fullRepoName}#`);
+            const changelog = compare.data.commits.map(commit => `* ${parseCommit(commit.commit.message)} ([commit](${commit.html_url}))`).join('\n');
 
-          return changelog;
+            return changelog;
+          } catch {
+            return 'No changes found or failed';
+          }
