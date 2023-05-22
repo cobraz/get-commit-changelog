@@ -53,7 +53,7 @@ runs:
             const parseCommit = (message) => message.split('\n')[0].replace('#', `${fullRepoName}#`);
             const changelog = compare.data.commits.map(commit => `* ${parseCommit(commit.commit.message)} ([commit](${commit.html_url}))`).join('\n');
 
-            return changelog ?? '_No changes found_';
+            return changelog ?? 'No changes found';
           } catch {
             return 'No changes found or failed';
           }
